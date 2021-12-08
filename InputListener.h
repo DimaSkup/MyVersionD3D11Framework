@@ -26,38 +26,38 @@ namespace D3D11Framework
 		const eMouseKeyCodes code;
 	};
 
-	// a mouse wheel rotating event
+	// a mouse wheel event
 	struct MouseEventWheel : public MouseEvent
 	{
-		MouseEventWheel(int wh, int nx, int ny) :
+		MouseEventWheel(short wh, int nx, int ny) :
 			MouseEvent(nx, ny), wheel(wh) {}
 
 		int wheel;
 	};
 
-	// a keyboard event
+	// a keybutton event
 	struct KeyEvent
 	{
-		KeyEvent(eKeyCodes kc, wchar_t w) :
-			code(kc), wc(w) {}
+		KeyEvent(eKeyCodes c, wchar_t wch) :
+			code(c), wchar(wch) {}
 
 		const eKeyCodes code;
-		const wchar_t wc;
+		const wchar_t wchar;
 	};
 
-	class InputListener
+	// an abstract InputListener class
+	class InputListener 
 	{
 	public:
-		virtual bool KeyPressed(const KeyEvent &event) { return false; }
-		virtual bool KeyReleased(const KeyEvent &event) { return false; }
+		virtual bool MousePressed(const MouseEventClick &arg) { return true; }
+		virtual bool MouseReleased(const MouseEventClick &arg) { return true; }
+		
+		virtual bool KeyPressed(const KeyEvent &arg) { return true; }
+		virtual bool KeyReleased(const KeyEvent &arg) { return true; }
 
-		virtual bool MousePressed(const MouseEventClick &event) { return false; }
-		virtual bool MouseReleased(const MouseEventClick &event) { return false; }
-
-		virtual bool MouseMove(const MouseEvent &event) { return false; }
-		virtual bool MouseWheel(const MouseEventWheel &event) { return false; }
+		virtual bool MouseMove(const MouseEvent &arg) { return true; }
+		virtual bool MouseWheel(const MouseEventWheel &arg) { return true; }
 	};
-
 
 //---------------------------------------------------------------
 }

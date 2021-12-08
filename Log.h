@@ -14,7 +14,7 @@ namespace D3D11Framework
 
 		void Print(const char* message, ...);
 		void Debug(const char* message, ...);
-		void Err(const char* message, ...);
+		void Error(const char* message, ...);
 
 	private:
 		static Log* m_instance;
