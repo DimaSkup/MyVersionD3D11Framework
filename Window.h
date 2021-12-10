@@ -2,6 +2,8 @@
 
 namespace D3D11Framework
 {
+// ------------------------------------------------------------------
+
 	class InputManager;
 
 	struct DescWindow
@@ -47,7 +49,7 @@ namespace D3D11Framework
 			return temp;
 		}
 
-		LRESULT WinProc(const UINT &message, WPARAM wParam, LPARAM lParam);
+		LRESULT WinProc(HWND hWnd, const UINT &message, WPARAM wParam, LPARAM lParam);
 
 	private:
 		void m_updateWindowState(void);
@@ -66,4 +68,6 @@ namespace D3D11Framework
 	};
 
 	static LRESULT CALLBACK StaticWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+// ------------------------------------------------------------------
 }
