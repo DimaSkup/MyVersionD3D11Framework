@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Window.h"
-#include "InputManager.h"
 #include "Render.h"
+#include "InputManager.h"
+
 
 namespace D3D11Framework
 {

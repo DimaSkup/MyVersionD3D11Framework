@@ -1,7 +1,6 @@
 #pragma once
 
 #include "InputCodes.h"
-#include "InputListener.h"
 
 namespace D3D11Framework
 {

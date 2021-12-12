@@ -7,20 +7,25 @@ namespace D3D11Framework
 {
 // ------------------------------------------------------------------
 
-	Window* m_wndthis = nullptr;
+	Window* Window::m_wndthis = nullptr;
 
 	Window::Window(void)
 	{
-		m_wndthis = this;
 		m_hwnd = nullptr;
 		m_inputManager = nullptr;
 		m_isExit = false;
 		m_isActive = true;
 		m_isResize = false;
 		m_minimized = false;
-		m_maximized = true;
+		m_maximized = false;
+		if (!m_wndthis)
+			m_wndthis = this;
+		else
+			Log::Get()->Error("Window::Window(): has already been created");
+
 		Log::Get()->Debug("Window::Window(): constructor");
 	}
+
 
 	Window::~Window(void)
 	{
@@ -85,7 +90,7 @@ namespace D3D11Framework
 		return true;
 	}
 
-	void Window::Run(void)
+	void Window::RunEvent(void)
 	{
 		MSG msg;
 
@@ -115,7 +120,7 @@ namespace D3D11Framework
 				m_isExit = true;
 				return 0;
 			case WM_ACTIVATE:
-				if (HIWORD(wParam) == WA_INACTIVE)
+				if (LOWORD(wParam) == WA_INACTIVE)
 					m_isActive = false;
 				else
 					m_isActive = true;
@@ -128,11 +133,12 @@ namespace D3D11Framework
 				return 0;
 
 			case WM_SIZE:
-				if (!m_isResize)
+				if (!m_desc.resizing)
 					return 0;
 
 				m_desc.width = LOWORD(lParam);
 				m_desc.height = HIWORD(lParam);
+				m_isResize = true;
 
 				if (wParam == SIZE_MAXIMIZED)
 				{
@@ -162,6 +168,16 @@ namespace D3D11Framework
 
 				m_updateWindowState();
 				return 0;
+
+			case WM_MOUSEMOVE:
+			case WM_KEYDOWN: case WM_KEYUP:
+			case WM_LBUTTONDOWN: case WM_LBUTTONUP:
+			case WM_RBUTTONDOWN: case WM_RBUTTONUP:
+			case WM_MBUTTONDOWN: case WM_MBUTTONUP:
+			case WM_MOUSEWHEEL:
+				if (m_inputManager)
+					m_inputManager->Run(message, wParam, lParam);
+				return 0;
 		}
 
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -170,17 +186,23 @@ namespace D3D11Framework
 	void Window::SetInputManager(InputManager* inputManager)
 	{
 		m_inputManager = inputManager;
-		if (m_inputManager)
-			m_updateWindowState();
+		m_updateWindowState();
 	}
 
 	void Window::m_updateWindowState(void)
 	{
+
+		//RECT clientRect;
+		//clientRect = { m_desc.posx, m_desc.posy, m_desc.width, m_desc.height };
+
+		RECT clientRect;
+		clientRect.left = m_desc.posx;
+		clientRect.top = m_desc.posy;
+		clientRect.right = m_desc.width;
+		clientRect.bottom = m_desc.height;
+
 		if (m_inputManager)
 		{
-			RECT clientRect;
-			clientRect = { m_desc.posx, m_desc.posy, m_desc.width, m_desc.height };
-
 			m_inputManager->SetWinRect(clientRect);
 		}
 	}

@@ -14,13 +14,24 @@ namespace D3D11Framework
 		m_input = nullptr;
 		m_render = nullptr;
 		m_init = false;
-
-		Log::Get()->Debug("Framework::Framework()");
+		Log::Get()->Debug("Framework::Framework()");	
 	}
 
 	Framework::~Framework(void)
 	{
 		Log::Get()->Debug("Framework::~Framework()");
+	}
+
+	void Framework::AddInputListener(InputListener* listener)
+	{
+		if (m_input)
+			m_input->AddListener(listener);
+	}
+
+	void Framework::SetRender(Render* render)
+	{
+		m_render = render;
+		Log::Get()->Debug("Framework::SetRender(): the render is set");
 	}
 
 	bool Framework::Init(void)
@@ -76,21 +87,10 @@ namespace D3D11Framework
 		m_init = false;
 	}
 
-	void Framework::AddInputListener(InputListener* listener)
-	{
-		if (m_input)
-			m_input->AddListener(listener);
-	}
-
-	void Framework::SetRender(Render* render)
-	{
-		m_render = render;
-	}
-
 	bool Framework::m_frame(void)
 	{
 		// handle the window events
-		m_wnd->Run();
+		m_wnd->RunEvent();
 
 		// if the window isn't active, we stop frame process
 		if (!m_wnd->IsActive())

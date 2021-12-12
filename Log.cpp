@@ -22,8 +22,7 @@ namespace D3D11Framework
 		}
 		else
 		{
-			m_instance = nullptr;
-			printf("ERROR: can't create an instance of the Log class");
+			Error("Log::Log(): the Log instance has already created");
 		}
 	}
 
@@ -50,7 +49,7 @@ namespace D3D11Framework
 		else
 		{
 			m_file = nullptr;
-			printf("ERROR: can't create a log file");
+			printf("Log::m_init(): an error occured during creation of the log file\n");
 		}
 	}
 
@@ -88,7 +87,8 @@ namespace D3D11Framework
 			vsprintf_s(buffer, len, message, args);
 			m_print("", buffer);
 
-			_DELETE(buffer);
+			delete[] buffer;
+			buffer = nullptr;
 		}
 
 		va_end(args);
@@ -112,7 +112,8 @@ namespace D3D11Framework
 			vsprintf_s(buffer, len, message, args);
 			m_print("*DEBUG: ", buffer);
 
-			_DELETE(buffer);
+			delete[] buffer;
+			buffer = nullptr;
 		}
 
 		va_end(args);
@@ -136,7 +137,8 @@ namespace D3D11Framework
 			vsprintf_s(buffer, len, message, args);
 			m_print("*ERROR: ", buffer);
 
-			_DELETE(buffer);
+			delete[] buffer;
+			buffer = nullptr;
 		}
 		
 		va_end(args);
@@ -149,13 +151,14 @@ namespace D3D11Framework
 
 		_strtime_s(timer, 9);
 
-		printf("%s::%ld: %s: %s", timer, cl, levtext, text);
+		printf("%s::%ld: %s: %s\n", timer, cl, levtext, text);
 
 		if (m_file)
 		{
-			fprintf(m_file, "%s::%ld: %s: %s", timer, cl, levtext, text);
+			fprintf(m_file, "%s::%ld: %s%s\n", timer, cl, levtext, text);
 			fflush(m_file);
 		}
+		printf("kek\n");
 	}
 
 

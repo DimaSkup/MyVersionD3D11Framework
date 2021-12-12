@@ -8,11 +8,22 @@ namespace D3D11Framework
 
 	struct DescWindow
 	{
+		DescWindow() :
+			caption(L""),
+			width(640),
+			height(480),
+			posx(200),
+			posy(20),
+			resizing(true)
+		{}
+
+
 		int posx;
 		int posy;
 		int width;
 		int height;
 		std::wstring caption;
+		bool resizing;
 	};
 
 	class Window
@@ -24,16 +35,16 @@ namespace D3D11Framework
 		static Window* Get() { return m_wndthis; }
 
 		bool Create(const DescWindow &desc);
-		void Run(void);
+		void RunEvent(void);
 		void Close(void);
 
 		void SetInputManager(InputManager* inputManager);
 
 		HWND GetHWND(void) const { return m_hwnd; }
-		int GetWidth(void) const { return m_desc.width; }
-		int GetHeight(void) const { return m_desc.height; }
-		int GetLeft(void) const { return m_desc.posx; }
-		int GetTop(void) const { return m_desc.posy; }
+		int Window::GetWidth(void) const { return m_desc.width; }
+		int Window::GetHeight(void) const { return m_desc.height; }
+		int Window::GetLeft(void) const { return m_desc.posx; }
+		int Window::GetTop(void) const { return m_desc.posy; }
 
 		const std::wstring& GetCaption(void) const { return m_desc.caption; }
 
@@ -44,9 +55,9 @@ namespace D3D11Framework
 		// if the window changed its size, notifies the listener about it
 		bool IsResize(void)
 		{
-			bool temp = m_isResize;
+			bool ret = m_isResize;
 			m_isResize = false;
-			return temp;
+			return ret;
 		}
 
 		LRESULT WinProc(HWND hWnd, const UINT &message, WPARAM wParam, LPARAM lParam);

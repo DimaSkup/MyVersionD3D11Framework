@@ -1,5 +1,8 @@
 #include "stdafx.h"
+
 #include "InputManager.h"
+#include "InputCodes.h"
+#include "InputListener.h"
 #include "Log.h"
 
 namespace D3D11Framework
@@ -51,7 +54,7 @@ namespace D3D11Framework
 		{
 			// keybutton events handling
 			case WM_KEYDOWN:
-				keyCode = static_cast<eKeyCodes>(LOWORD(wParam));
+				keyCode = static_cast<eKeyCodes>(wParam);
 				GetKeyboardState(lpKeyState);
 				ToUnicode(wParam,
 							HIWORD(lParam) & 0xFF,
@@ -62,7 +65,7 @@ namespace D3D11Framework
 				m_eventKey(keyCode, symbol[0], true);
 				break;
 			case WM_KEYUP:
-				keyCode = static_cast<eKeyCodes>(LOWORD(wParam));
+				keyCode = static_cast<eKeyCodes>(wParam);
 				GetKeyboardState(lpKeyState);
 				ToUnicode(wParam,
 							HIWORD(lParam) & 0xFF,
@@ -174,7 +177,7 @@ namespace D3D11Framework
 		for (auto it = m_Listener.begin(); it != m_Listener.end(); ++it)
 		{
 			if (!(*it))
-				return;
+				continue;
 
 			// if a keybutton is pressed
 			if (press == true)

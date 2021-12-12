@@ -29,7 +29,7 @@ namespace D3D11Framework
 	// a mouse wheel event
 	struct MouseEventWheel : public MouseEvent
 	{
-		MouseEventWheel(short wh, int nx, int ny) :
+		MouseEventWheel(int wh, int nx, int ny) :
 			MouseEvent(nx, ny), wheel(wh) {}
 
 		int wheel;
@@ -49,14 +49,14 @@ namespace D3D11Framework
 	class InputListener 
 	{
 	public:
-		virtual bool MousePressed(const MouseEventClick &arg) { return true; }
-		virtual bool MouseReleased(const MouseEventClick &arg) { return true; }
+		virtual bool MousePressed(const MouseEventClick &arg) { return false; }
+		virtual bool MouseReleased(const MouseEventClick &arg) { return false; }
 		
-		virtual bool KeyPressed(const KeyEvent &arg) { return true; }
-		virtual bool KeyReleased(const KeyEvent &arg) { return true; }
+		virtual bool KeyPressed(const KeyEvent &arg) { return false; }
+		virtual bool KeyReleased(const KeyEvent &arg) { return false; }
 
-		virtual bool MouseMove(const MouseEvent &arg) { return true; }
-		virtual bool MouseWheel(const MouseEventWheel &arg) { return true; }
+		virtual bool MouseMove(const MouseEvent &arg) { return false; }
+		virtual bool MouseWheel(const MouseEventWheel &arg) { return false; }
 	};
 
 //---------------------------------------------------------------
