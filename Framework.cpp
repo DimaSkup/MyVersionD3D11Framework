@@ -31,7 +31,7 @@ namespace D3D11Framework
 	void Framework::SetRender(Render* render)
 	{
 		m_render = render;
-		Log::Get()->Debug("Framework::SetRender(): the render is set");
+		Log::Get()->Debug("Framework::SetRender()");
 	}
 
 	bool Framework::Init(void)
@@ -60,7 +60,7 @@ namespace D3D11Framework
 		m_input->Init();
 		m_wnd->SetInputManager(m_input);
 
-		if (!m_render->Init(m_wnd->GetHWND()))
+		if (!m_render->CreateDevice(m_wnd->GetHWND()))
 		{
 			Log::Get()->Error("Framework::Init(): can't create the render");
 			return false;
@@ -80,7 +80,9 @@ namespace D3D11Framework
 	{
 		Log::Get()->Debug("Framework::Close()");
 
-		_CLOSE(m_render);
+		m_render->Close();
+		_DELETE(m_render);
+		//_CLOSE(m_render);
 		_CLOSE(m_input);
 		_CLOSE(m_wnd);
 
@@ -106,8 +108,10 @@ namespace D3D11Framework
 
 		}
 
+		m_render->BeginFrame();
 		if (!m_render->Draw())
 			return false;
+		m_render->EndFrame();
 
 		return true;
 	}

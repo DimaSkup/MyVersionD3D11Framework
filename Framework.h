@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Render.h"
 #include "InputManager.h"
+#include "Log.h"
 
 
 namespace D3D11Framework
@@ -28,6 +29,7 @@ namespace D3D11Framework
 		Window* m_wnd;
 		InputManager* m_input;
 		Render* m_render;
+		Log m_log;
 		bool m_init;
 	};
 

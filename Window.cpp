@@ -187,6 +187,7 @@ namespace D3D11Framework
 	{
 		m_inputManager = inputManager;
 		m_updateWindowState();
+		Log::Get()->Debug("Window::SetInputManager()");
 	}
 
 	void Window::m_updateWindowState(void)

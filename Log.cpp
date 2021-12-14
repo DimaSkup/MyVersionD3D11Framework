@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "macros.h"
 #include "Log.h"
 
 
@@ -30,7 +29,7 @@ namespace D3D11Framework
 	{
 		m_close();
 		m_instance = nullptr;
-		Debug("Log::~Log(): desctructor");
+		printf("Log::~Log(): desctructor\n");
 	}
 
 	void Log::m_init(void)
@@ -43,6 +42,7 @@ namespace D3D11Framework
 			_strtime_s(timer, 9);
 			_strdate_s(date, 9);
 
+			printf("The log file is successfully created: %s %s\n", date, timer);
 			fprintf(m_file, "The log file is successfully created: %s %s\n", date, timer);
 			fprintf(m_file, "-------------------------------------------\n\n");
 		}
@@ -158,7 +158,6 @@ namespace D3D11Framework
 			fprintf(m_file, "%s::%ld: %s%s\n", timer, cl, levtext, text);
 			fflush(m_file);
 		}
-		printf("kek\n");
 	}
 
 
