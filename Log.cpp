@@ -151,7 +151,19 @@ namespace D3D11Framework
 
 		_strtime_s(timer, 9);
 
-		printf("%s::%ld: %s: %s\n", timer, cl, levtext, text);
+		if (toupper(levtext[1]) == 'E')
+		{
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(hConsole, 12);
+			printf("%s::%ld: %s: %s\n", timer, cl, levtext, text);
+			SetConsoleTextAttribute(hConsole, 7);
+		}
+		else
+		{
+			printf("%s::%ld: %s: %s\n", timer, cl, levtext, text);
+		}
+		
+		
 
 		if (m_file)
 		{

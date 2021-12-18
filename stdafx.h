@@ -1,9 +1,11 @@
 #pragma once
 
 #include <ctime>
+#include <stdio.h>
 
 #include <string>
 #include <list>
+
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

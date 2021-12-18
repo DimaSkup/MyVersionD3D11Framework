@@ -40,7 +40,7 @@ namespace D3D11Framework
 	{
 		if (m_Listener.empty())
 		{
-			Log::Get()->Error("InputManager::Run(): there is no listener yet!");
+			//Log::Get()->Error("InputManager::Run(): there is no listener yet!");
 			return;
 		}
 
