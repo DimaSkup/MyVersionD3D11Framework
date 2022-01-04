@@ -3,6 +3,8 @@
 #include "Render.h"
 #include "Log.h"
 
+#include <d3dcompiler.h>
+
 
 namespace D3D11Framework
 {
@@ -16,12 +18,39 @@ namespace D3D11Framework
 		m_pImmediateContext = nullptr;
 		m_pSwapChain = nullptr;
 		m_pRenderTargetView = nullptr;
+		m_pDepthStencil = nullptr;
+		m_pDepthStencilView = nullptr;
+
+
 		Log::Get()->Debug("Render::Render()");
 	}
 
 	Render::~Render(void)
 	{
 
+	}
+
+	HRESULT Render::m_compileShaderFromFile(WCHAR* Filename, LPCSTR FunctionName,
+											LPCSTR ShaderModel, ID3DBlob** ppShaderBlob)
+	{
+		HRESULT hr = S_OK;
+
+		UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_ENABLE_STRICTNESS;
+#if defined(_DEBUG) || defined(DEBUG)
+		compileFlags |= D3DCOMPILE_DEBUG;
+#endif
+
+		ID3DBlob* pErrorMsgs = nullptr;
+
+		hr = D3DX11CompileFromFile(L"shader.fx", nullptr, NULL,
+									FunctionName, ShaderModel,
+									compileFlags, NULL, nullptr,
+									ppShaderBlob, &pErrorMsgs, nullptr);
+		if (FAILED(hr) && (pErrorMsgs != nullptr))
+			OutputDebugStringA((char*)pErrorMsgs->GetBufferPointer());
+
+		_RELEASE(pErrorMsgs);
+		return hr;
 	}
 
 	bool Render::CreateDevice(HWND hWnd)
@@ -132,7 +161,43 @@ namespace D3D11Framework
 			return false;
 		}
 
-		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+		// Initialization of the depth stencil and depth stencil view
+		D3D11_TEXTURE2D_DESC descDepth;
+		ZeroMemory(&descDepth, sizeof(D3D11_TEXTURE2D_DESC));
+
+		descDepth.Width = width;
+		descDepth.Height = height;
+		descDepth.MipLevels = 1;
+		descDepth.ArraySize = 1;
+		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDepth.SampleDesc.Count = 1;
+		descDepth.SampleDesc.Quality = 0;
+		descDepth.Usage = D3D11_USAGE_DEFAULT;
+		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags = 0;
+		descDepth.MiscFlags = 0;
+
+		hr = m_pd3dDevice->CreateTexture2D(&descDepth, NULL, &m_pDepthStencil);
+		if (FAILED(hr))
+		{
+			Log::Get()->Error("Render::CreateDevice(): can't create the depth stencil");
+			return false;
+		}
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+		ZeroMemory(&descDSV, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+
+		descDSV.Format = descDepth.Format;
+		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		descDSV.Texture2D.MipSlice = 0;
+		hr = m_pd3dDevice->CreateDepthStencilView(m_pDepthStencil, &descDSV, &m_pDepthStencilView);
+		if (FAILED(hr))
+		{
+			Log::Get()->Error("Render::CreateDevice(): can't create the depth stencil view");
+			return false;
+		}
+
+		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
 
 
@@ -158,6 +223,7 @@ namespace D3D11Framework
 	{
 		FLOAT clearColor[] = { 0.2f, 0.4f, 0.6f, 1.0f };
 		m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
+		m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void Render::EndFrame(void)
@@ -165,5 +231,22 @@ namespace D3D11Framework
 		m_pSwapChain->Present(0, 0);
 	}
 
+	void Render::Shutdown()
+	{
+		Close();
+
+		if (m_pImmediateContext)
+			m_pImmediateContext->ClearState();
+
+		_RELEASE(m_pDepthStencil);
+		_RELEASE(m_pDepthStencilView);
+		_RELEASE(m_pRenderTargetView);
+		_RELEASE(m_pSwapChain);
+		_RELEASE(m_pImmediateContext);
+		_RELEASE(m_pd3dDevice);
+	}
+
 // ------------------------------------------------------------------
 }
+
+
