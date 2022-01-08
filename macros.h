@@ -10,5 +10,5 @@ template<typename T> void _delete(T &* p) { if(p) {delete(p); p = nullptr;} }
 #define _RELEASE(p)			{ if(p) {(p)->Release(); p = nullptr;} }
 
 // the current version of the framework
-#define VERSION_FRAMEWORK 2
+#define VERSION_FRAMEWORK 3
 

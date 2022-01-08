@@ -10,22 +10,28 @@ namespace D3D11Framework
 {
 // ------------------------------------------------------------------
 
+	struct FrameworkDesc
+	{
+		DescWindow wnd;
+		Render* render;
+	};
+
 	class Framework
 	{
 	public:
 		Framework(void);
 		~Framework(void);
 
-		bool Init(void);
+		bool Init(const FrameworkDesc &desc);
 		void Run(void);
 		void Close(void);
 
 		void AddInputListener(InputListener* listener);
-		void SetRender(Render* render);
 
 	protected:
 		bool m_frame(void);
 
+		FrameworkDesc m_desc;
 		Window* m_wnd;
 		InputManager* m_input;
 		Render* m_render;

@@ -28,16 +28,11 @@ namespace D3D11Framework
 			m_input->AddListener(listener);
 	}
 
-	void Framework::SetRender(Render* render)
-	{
-		m_render = render;
-		Log::Get()->Debug("Framework::SetRender()");
-	}
-
-	bool Framework::Init(void)
+	bool Framework::Init(const FrameworkDesc &desc)
 	{
 		Log::Get()->Debug("Framework::Init()");
 
+		m_render = desc.render;
 		m_wnd = new (std::nothrow) Window();
 		m_input = new (std::nothrow) InputManager();
 
@@ -48,10 +43,8 @@ namespace D3D11Framework
 			return false;
 		}
 
-		// set up the default values
-		DescWindow desc;
 
-		if (!m_wnd->Create(desc))
+		if (!m_wnd->Create(desc.wnd))
 		{
 			Log::Get()->Error("Framework::Init(): can't create the window");
 			return false;

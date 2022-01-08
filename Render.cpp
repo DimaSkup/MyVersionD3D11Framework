@@ -177,7 +177,7 @@ namespace D3D11Framework
 		descDepth.CPUAccessFlags = 0;
 		descDepth.MiscFlags = 0;
 
-		hr = m_pd3dDevice->CreateTexture2D(&descDepth, NULL, &m_pDepthStencil);
+		hr = m_pd3dDevice->CreateTexture2D(&descDepth, nullptr, &m_pDepthStencil);
 		if (FAILED(hr))
 		{
 			Log::Get()->Error("Render::CreateDevice(): can't create the depth stencil");
@@ -190,6 +190,7 @@ namespace D3D11Framework
 		descDSV.Format = descDepth.Format;
 		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		descDSV.Texture2D.MipSlice = 0;
+
 		hr = m_pd3dDevice->CreateDepthStencilView(m_pDepthStencil, &descDSV, &m_pDepthStencilView);
 		if (FAILED(hr))
 		{
