@@ -14,19 +14,10 @@ namespace D3D11Framework
 	{
 		m_driverType = D3D_DRIVER_TYPE_NULL;
 		m_featureLevel = D3D_FEATURE_LEVEL_11_0;
+
 		m_pd3dDevice = nullptr;
 		m_pImmediateContext = nullptr;
 		m_pSwapChain = nullptr;
-		m_pRenderTargetView = nullptr;
-		m_pDepthStencil = nullptr;
-		m_pDepthStencilView = nullptr;
-
-
-		Log::Get()->Debug("Render::Render()");
-	}
-
-	Render::~Render(void)
-	{
 
 	}
 
@@ -35,19 +26,23 @@ namespace D3D11Framework
 	{
 		HRESULT hr = S_OK;
 
-		UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_ENABLE_STRICTNESS;
+		//UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_ENABLE_STRICTNESS;
+		UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined(_DEBUG) || defined(DEBUG)
 		compileFlags |= D3DCOMPILE_DEBUG;
 #endif
 
 		ID3DBlob* pErrorMsgs = nullptr;
 
-		hr = D3DX11CompileFromFile(L"shader.fx", nullptr, NULL,
+		hr = D3DX11CompileFromFile(Filename, nullptr, NULL,
 									FunctionName, ShaderModel,
 									compileFlags, NULL, nullptr,
 									ppShaderBlob, &pErrorMsgs, nullptr);
 		if (FAILED(hr) && (pErrorMsgs != nullptr))
-			OutputDebugStringA((char*)pErrorMsgs->GetBufferPointer());
+		{
+			printf("INTERNAL ERRORS OF THE \"%S\" SHADER:\n", Filename);
+			printf("%s\n", (char*)pErrorMsgs->GetBufferPointer());
+		}
 
 		_RELEASE(pErrorMsgs);
 		return hr;
@@ -222,7 +217,7 @@ namespace D3D11Framework
 
 	void Render::BeginFrame(void)
 	{
-		FLOAT clearColor[] = { 0.2f, 0.4f, 0.6f, 1.0f };
+		float clearColor[4] = { 0.2f, 0.4f, 0.6f, 1.0f };
 		m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
 		m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
