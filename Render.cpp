@@ -1,3 +1,5 @@
+// last revising at 25.01.22
+
 #include "stdafx.h"
 #include "macros.h"
 #include "Render.h"
@@ -18,35 +20,42 @@ namespace D3D11Framework
 		m_pd3dDevice = nullptr;
 		m_pImmediateContext = nullptr;
 		m_pSwapChain = nullptr;
+		m_pRenderTargetView = nullptr;
 
+		m_pDepthStencil = nullptr;
+		m_pDepthStencilView = nullptr;
 	}
 
-	HRESULT Render::m_compileShaderFromFile(WCHAR* Filename, LPCSTR FunctionName,
-											LPCSTR ShaderModel, ID3DBlob** ppShaderBlob)
+
+	HRESULT Render::m_compileShaderFromFile(WCHAR* filename, LPCSTR functionName,
+											LPCSTR shaderModel, ID3DBlob** ppShaderBlob)
 	{
 		HRESULT hr = S_OK;
 
-		//UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_ENABLE_STRICTNESS;
 		UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined(_DEBUG) || defined(DEBUG)
+
+	#if defined(DEBUG) || defined(_DEBUG)
 		compileFlags |= D3DCOMPILE_DEBUG;
-#endif
+	#endif
 
 		ID3DBlob* pErrorMsgs = nullptr;
 
-		hr = D3DX11CompileFromFile(Filename, nullptr, NULL,
-									FunctionName, ShaderModel,
+		hr = D3DX11CompileFromFile(filename, nullptr, NULL,
+									functionName, shaderModel, 
 									compileFlags, NULL, nullptr,
 									ppShaderBlob, &pErrorMsgs, nullptr);
 		if (FAILED(hr) && (pErrorMsgs != nullptr))
 		{
-			printf("INTERNAL ERRORS OF THE \"%S\" SHADER:\n", Filename);
+			printf("INTERNAL ERRORS OF THE \"%S\" SHADER FILE (FUNCTION: %s):\n", 
+					filename, functionName);
 			printf("%s\n", (char*)pErrorMsgs->GetBufferPointer());
 		}
 
 		_RELEASE(pErrorMsgs);
+
 		return hr;
 	}
+
 
 	bool Render::CreateDevice(HWND hWnd)
 	{
@@ -54,9 +63,9 @@ namespace D3D11Framework
 		HRESULT hr = S_OK;
 
 		RECT windowRect;
-		BOOL isClientRect = GetClientRect(hWnd, &windowRect);
+		BOOL isWindowRect = GetClientRect(hWnd, &windowRect);
 
-		if (isClientRect == FALSE)
+		if (!isWindowRect)
 		{
 			Log::Get()->Error("Render::CreateDevice(): can't get client rect data");
 			return false;
@@ -70,6 +79,7 @@ namespace D3D11Framework
 #ifdef _DEBUG
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+
 
 		D3D_DRIVER_TYPE driverTypes[] =
 		{
