@@ -1,8 +1,10 @@
+// last revising at 28.01.22
+
 #pragma once
 
 namespace D3D11Framework
 {
-// ------------------------------------------------------------------
+//-------------------------------------------------------------------
 
 	class Render
 	{
@@ -19,12 +21,12 @@ namespace D3D11Framework
 		virtual void Close(void) = 0;
 
 	protected:
-		HRESULT m_compileShaderFromFile(WCHAR* filename, LPCSTR functionName,
+		HRESULT m_compileShaderFromFile(WCHAR* filename, LPCSTR functionName, 
 										LPCSTR shaderModel, ID3DBlob** ppShaderBlob);
 
 		D3D_DRIVER_TYPE m_driverType;
 		D3D_FEATURE_LEVEL m_featureLevel;
-		
+
 		ID3D11Device* m_pd3dDevice;
 		ID3D11DeviceContext* m_pImmediateContext;
 		IDXGISwapChain* m_pSwapChain;
@@ -32,8 +34,7 @@ namespace D3D11Framework
 
 		ID3D11Texture2D* m_pDepthStencil;
 		ID3D11DepthStencilView* m_pDepthStencilView;
-
 	};
 
-// ------------------------------------------------------------------
+//-------------------------------------------------------------------
 }
