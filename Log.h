@@ -10,11 +10,11 @@ namespace D3D11Framework
 		Log(void);
 		~Log(void);
 
-		static Log* Get() { return m_instance; }
-
 		void Print(const char* message, ...);
 		void Debug(const char* message, ...);
 		void Error(const char* message, ...);
+
+		static Log* Get() { return m_instance; }
 
 	private:
 		static Log* m_instance;
