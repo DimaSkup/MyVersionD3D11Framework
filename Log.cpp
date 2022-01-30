@@ -30,8 +30,72 @@ namespace D3D11Framework
 			return;
 
 		m_close();
+		fflush(m_file);
 		fclose(m_file);
+
 		printf("Log::~Log()\n");
+	}
+
+	void Log::Print(const char* message, ...)
+	{
+		va_list args;
+		int len = 0;
+		char* buffer = nullptr;
+
+		va_start(args, message);
+		len = _vscprintf(message, args) + 1;
+
+		buffer = new (std::nothrow) char[len];
+		assert(buffer != nullptr);
+
+		vsprintf_s(buffer, len, message, args);
+		m_print("", buffer);
+
+		delete[] buffer;
+		buffer = nullptr;
+	}
+
+	void Log::Debug(const char* message, ...)
+	{
+#ifdef _DEBUG
+		va_list args;
+		int len = 0;
+		char* buffer = nullptr;
+
+		va_start(args, message);
+		len = _vscprintf(message, args) + 1;
+
+		buffer = new (std::nothrow) char[len];
+		assert(buffer != nullptr);
+
+		vsprintf_s(buffer, len, message, args);
+		m_print("*DEBUG", buffer);
+
+		delete[] buffer;
+		buffer = nullptr;
+#endif
+	}
+
+	void Log::Error(const char* message, ...)
+	{
+		va_list args;
+		int len = 0;
+		char* buffer = nullptr;
+
+		va_start(args, message);
+		len = _vscprintf(message, args) + 1;
+
+		buffer = new (std::nothrow) char[len];
+		assert(buffer != nullptr);
+
+		vsprintf_s(buffer, len, message, args);
+		HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		m_print("*ERROR", buffer);
+		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+		delete[] buffer;
+		buffer = nullptr;
 	}
 
 	void Log::m_init(void)
@@ -67,6 +131,21 @@ namespace D3D11Framework
 
 		fprintf(m_file, "[%s :: %s]: The end of the log file\n", date, time);
 		fprintf(m_file, "----------------------------------------------\n");
+	}
+
+	void Log::m_print(const char* levtext, const char* text)
+	{
+		time_t tickCount = GetTickCount();
+		char time[9];
+
+		_strtime_s(time, 9);
+
+		printf("[%s :: %lld]: %s: %s\n", time, tickCount, levtext, text);
+		if (m_file)
+		{
+			fprintf(m_file, "[%s :: %lld]: %s: %s\n", time, tickCount, levtext, text);
+			fflush(m_file);
+		}
 	}
 
 //-------------------------------------------------------------------
