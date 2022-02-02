@@ -53,6 +53,7 @@ namespace D3D11Framework
 
 		delete[] buffer;
 		buffer = nullptr;
+		va_end(args);
 	}
 
 	void Log::Debug(const char* message, ...)
@@ -73,6 +74,7 @@ namespace D3D11Framework
 
 		delete[] buffer;
 		buffer = nullptr;
+		va_end(args);
 #endif
 	}
 
@@ -89,13 +91,16 @@ namespace D3D11Framework
 		assert(buffer != nullptr);
 
 		vsprintf_s(buffer, len, message, args);
-		HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		FlushConsoleInputBuffer(hConsole);
+		SetConsoleTextAttribute(hConsole, 12);
 		m_print("*ERROR", buffer);
-		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+		SetConsoleTextAttribute(hConsole, 7);
 
 		delete[] buffer;
 		buffer = nullptr;
+		va_end(args);
 	}
 
 	void Log::m_init(void)
@@ -139,12 +144,13 @@ namespace D3D11Framework
 		char time[9];
 
 		_strtime_s(time, 9);
-
-		printf("[%s :: %lld]: %s: %s\n", time, tickCount, levtext, text);
+		printf("[%s :: %ld]: %s: %s\n", time, tickCount, levtext, text);
+		
 		if (m_file)
 		{
 			fprintf(m_file, "[%s :: %lld]: %s: %s\n", time, tickCount, levtext, text);
 			fflush(m_file);
+			
 		}
 	}
 

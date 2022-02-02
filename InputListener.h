@@ -4,60 +4,54 @@
 
 namespace D3D11Framework
 {
-//---------------------------------------------------------------
+//-------------------------------------------------------------------
 
-	// a mouse moving event
 	struct MouseEvent
 	{
 		MouseEvent(int nx, int ny) :
-			x(nx), y(ny) {}
-
+			x(nx), y(ny) {};
 
 		int x;
 		int y;
 	};
 
-	// a mouse click event
-	struct MouseEventClick : public MouseEvent
+	struct MouseClickEvent : public MouseEvent
 	{
-		MouseEventClick(eMouseKeyCodes kc, int nx, int ny) :
-			MouseEvent(nx, ny), code(kc) {}
+		MouseClickEvent(const eMouseKeyCodes nbtn, int nx, int ny) :
+			button(nbtn), MouseEvent(nx, ny) {}
 
-		const eMouseKeyCodes code;
+		const eMouseKeyCodes button;
 	};
 
-	// a mouse wheel event
-	struct MouseEventWheel : public MouseEvent
+	struct MouseWheelEvent : public MouseEvent
 	{
-		MouseEventWheel(int wh, int nx, int ny) :
-			MouseEvent(nx, ny), wheel(wh) {}
+		MouseWheelEvent(short wh, int nx, int ny) :
+			wheel(wh), MouseEvent(nx, ny) {}
 
-		int wheel;
+		short wheel;
 	};
 
-	// a keybutton event
 	struct KeyEvent
 	{
-		KeyEvent(eKeyCodes c, wchar_t wch) :
-			code(c), wchar(wch) {}
+		KeyEvent(const wchar_t wc, const eKeyCodes c) :
+			wch(wc), code(c) {}
 
+		const wchar_t wch;
 		const eKeyCodes code;
-		const wchar_t wchar;
 	};
 
-	// an abstract InputListener class
-	class InputListener 
+	class InputListener
 	{
 	public:
-		virtual bool MousePressed(const MouseEventClick &arg) { return false; }
-		virtual bool MouseReleased(const MouseEventClick &arg) { return false; }
-		
-		virtual bool KeyPressed(const KeyEvent &arg) { return false; }
-		virtual bool KeyReleased(const KeyEvent &arg) { return false; }
+		virtual bool MousePressed(const MouseClickEvent& arg) { return false; }
+		virtual bool MouseRelease(const MouseClickEvent& arg) { return false; }
 
-		virtual bool MouseMove(const MouseEvent &arg) { return false; }
-		virtual bool MouseWheel(const MouseEventWheel &arg) { return false; }
+		virtual bool KeyPressed(const KeyEvent& arg) { return false; }
+		virtual bool KeyRelease(const KeyEvent& arg) { return false; }
+
+		virtual bool MouseMove(const MouseEvent& arg) { return false; }
+		virtual bool MouseWheel(const MouseWheelEvent& arg) { return false; }
 	};
 
-//---------------------------------------------------------------
+//-------------------------------------------------------------------
 }

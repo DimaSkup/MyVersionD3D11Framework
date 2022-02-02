@@ -1,84 +1,70 @@
 #pragma once
 
+#include "InputManager.h"
+
 namespace D3D11Framework
 {
-// ------------------------------------------------------------------
-
-	class InputManager;
+//-------------------------------------------------------------------
 
 	struct DescWindow
 	{
-		DescWindow() :
-			caption(L""),
-			width(640),
-			height(480),
-			posx(200),
-			posy(20),
-			resizing(true)
-		{}
+		DescWindow() 
+		{
+			caption = L"";
+			width = 640;
+			height = 480;
+			posx = 20;
+			posy = 20;
+			resize = false;
+		}
 
-
-		int posx;
-		int posy;
+		std::wstring caption;
 		int width;
 		int height;
-		std::wstring caption;
-		bool resizing;
+		int posx;
+		int posy;
+		bool resize;
 	};
 
 	class Window
 	{
 	public:
 		Window(void);
-		~Window(void);
 
-		static Window* Get() { return m_wndthis; }
-
-		bool Create(const DescWindow &desc);
-		void RunEvent(void);
+		bool Create(const DescWindow& desc);
+		void SetInputManager(InputManager* inputManager);
 		void Close(void);
 
-		void SetInputManager(InputManager* inputManager);
+		const HWND& GetHWND(void) { return m_hwnd; }
 
-		HWND GetHWND(void) const { return m_hwnd; }
-		int Window::GetWidth(void) const { return m_desc.width; }
-		int Window::GetHeight(void) const { return m_desc.height; }
-		int Window::GetLeft(void) const { return m_desc.posx; }
-		int Window::GetTop(void) const { return m_desc.posy; }
+		int GetWidth(void) { return m_desc.width; }
+		int GetHeight(void) { return m_desc.height; }
+		int GetLeft(void) { return m_desc.posx; }
+		int GetTop(void) { return m_desc.posy; }
 
-		const std::wstring& GetCaption(void) const { return m_desc.caption; }
+		const std::wstring& GetCaption(void) { return m_desc.caption; }
 
-		// if there is an exit, notifies the listeners about it
-		bool IsExit(void) { return m_isExit; }
-		// if the window changed activation status, notifies the listeners about it
-		bool IsActive(void) { return m_isActive; }
-		// if the window changed its size, notifies the listener about it
-		bool IsResize(void)
+		bool isExit(void) { return m_isExit; }
+		bool isResizing(void) 
 		{
-			bool ret = m_isResize;
-			m_isResize = false;
+			bool ret = m_isResizing;
+			m_isResizing = false;
 			return ret;
 		}
 
-		LRESULT WinProc(HWND hWnd, const UINT &message, WPARAM wParam, LPARAM lParam);
-
 	private:
-		void m_updateWindowState(void);
+		void UpdateWindowState(void);
 
-		static Window* m_wndthis;
-
-		InputManager* m_inputManager;
 		HWND m_hwnd;
+		InputManager* m_inputManager;
 		DescWindow m_desc;
 
-		bool m_isExit;
-		bool m_isActive;
-		bool m_isResize;
 		bool m_maximized;
 		bool m_minimized;
+		bool m_isExit;
+		bool m_isResizing;
 	};
 
-	static LRESULT CALLBACK StaticWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-// ------------------------------------------------------------------
-}
+//-------------------------------------------------------------------
+};

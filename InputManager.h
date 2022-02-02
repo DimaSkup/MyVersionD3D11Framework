@@ -1,38 +1,37 @@
 #pragma once
 
 #include "InputCodes.h"
+#include "InputListener.h"
 
 namespace D3D11Framework
 {
-//---------------------------------------------------------------
+//-------------------------------------------------------------------
 
-	class InputListener;
+	class InputListener; // ????
 
 	class InputManager
 	{
 	public:
-		void Init(void);	// initialization 
+		void Init(void);
 		void Close(void);
 
-		// handle the event from the window
-		void Run(const UINT &message, WPARAM wParam, LPARAM lParam);
-
-		void SetWinRect(const RECT &rect);	// set the window zone
-		void AddListener(InputListener* listener);		
+		void SetInputListener(InputListener* listener);
+		void SetWindowZone(const RECT& winRect);
+		void RunEvent(const UINT message, WPARAM wParam, LPARAM lParam);
 
 	private:
-		void m_eventMouse(void);											// a mouse move event
-		void m_eventMouseClick(const eMouseKeyCodes code, bool press);		// a mouse button click event
-		void m_eventMouseWheel(short value);								// a mouse wheel event
-		void m_eventKey(const eKeyCodes c, const wchar_t wch, bool press);	// a keybutton event
+		void eventCursor(void);
+		void eventMouseClick(const eMouseKeyCodes kcode, bool press);
+		void eventMouseWheel(short value);
+		void eventKeyButton(const wchar_t wc, const eKeyCodes kcode, bool press);
 
-		std::list<InputListener*> m_Listener;
+		std::list<InputListener*> m_listener;
 
-		RECT m_wndrect;
+		RECT m_winRect;
 		int m_curx;
 		int m_cury;
 		int m_mouseWheel;
 	};
 
-//---------------------------------------------------------------
+//-------------------------------------------------------------------
 }
