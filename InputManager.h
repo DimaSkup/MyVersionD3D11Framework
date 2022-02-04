@@ -15,7 +15,7 @@ namespace D3D11Framework
 		void Init(void);
 		void Close(void);
 
-		void SetInputListener(InputListener* listener);
+		void AddInputListener(InputListener* listener);
 		void SetWindowZone(const RECT& winRect);
 		void RunEvent(const UINT message, WPARAM wParam, LPARAM lParam);
 

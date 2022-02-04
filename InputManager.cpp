@@ -21,7 +21,7 @@ namespace D3D11Framework
 		Log::Get()->Debug("InputManager::Close()");
 	}
 
-	void InputManager::SetInputListener(InputListener* listener)
+	void InputManager::AddInputListener(InputListener* listener)
 	{
 		m_listener.push_back(listener);
 	}
@@ -74,6 +74,33 @@ namespace D3D11Framework
 						  0);
 				eventKeyButton(buffer[0], kCode, false);
 				break;
+
+			case WM_LBUTTONDOWN:
+				eventMouseClick(MOUSE_LEFT, true);
+				break;
+			case WM_LBUTTONUP:
+				eventMouseClick(MOUSE_LEFT, false);
+				break;
+
+			case WM_RBUTTONDOWN:
+				eventMouseClick(MOUSE_RIGHT, true);
+				break;
+			case WM_RBUTTONUP:
+				eventMouseClick(MOUSE_RIGHT, false);
+				break;
+
+			case WM_MBUTTONDOWN:
+				eventMouseClick(MOUSE_MIDDLE, true);
+				break;
+			case WM_MBUTTONUP:
+				eventMouseClick(MOUSE_MIDDLE, false);
+				break;
+
+			case WM_MOUSEWHEEL:
+				eventMouseWheel(static_cast<short>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA));
+				break;
+			
+
 		}  // switch
 	} // RunEvent()
 
@@ -101,12 +128,41 @@ namespace D3D11Framework
 
 	void InputManager::eventMouseClick(const eMouseKeyCodes code, bool press)
 	{
+		for (auto it = m_listener.begin(); it != m_listener.end(); it++)
+		{
+			if (!(*it))
+				continue;
 
+			// if some mouse button is pressed
+			if (press)
+			{
+				if ((*it)->MousePressed(MouseClickEvent(code, m_curx, m_cury)) == true)
+					return;
+			}
+			// some mouse button is released
+			else
+			{
+				if ((*it)->MouseReleased(MouseClickEvent(code, m_curx, m_cury)) == true)
+					return;
+			}
+		}
 	}
 
 	void InputManager::eventMouseWheel(short value)
 	{
+		if (m_mouseWheel == value)
+			return;
 
+		m_mouseWheel = value;
+
+		for (auto it = m_listener.begin(); it != m_listener.end(); it++)
+		{
+			if (!(*it))
+				continue;
+
+			if ((*it)->MouseWheel(MouseWheelEvent(m_mouseWheel, m_curx, m_cury)) == true)
+				return;
+		}
 	}
 
 	void InputManager::eventKeyButton(const wchar_t wchar, const eKeyCodes code, bool press)
@@ -125,7 +181,7 @@ namespace D3D11Framework
 			// some keybutton is released
 			else
 			{
-				if ((*it)->KeyRelease(KeyEvent(wchar, code)) == true)
+				if ((*it)->KeyReleased(KeyEvent(wchar, code)) == true)
 					return;
 			}
 		}

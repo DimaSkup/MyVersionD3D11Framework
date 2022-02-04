@@ -1,43 +1,34 @@
 #pragma once
 
-#include "Window.h"
-#include "Render.h"
+#include "InputListener.h"
 #include "InputManager.h"
-#include "Log.h"
-
+#include "Window.h"
 
 namespace D3D11Framework
 {
-// ------------------------------------------------------------------
-
-	struct FrameworkDesc
-	{
-		DescWindow wnd;
-		Render* render;
-	};
+	//-------------------------------------------------------------------
 
 	class Framework
 	{
 	public:
 		Framework(void);
-		~Framework(void);
 
-		bool Init(const FrameworkDesc &desc);
+		bool Init(void);
 		void Run(void);
-		void Close(void);
+		void Close();
 
-		void AddInputListener(InputListener* listener);
-
-	protected:
-		bool m_frame(void);
-
-		FrameworkDesc m_desc;
+		//void SetRender(Render* render);
+		void AddListener(InputListener* listener);
+		
+	private:
+		bool m_draw(void);
 		Window* m_wnd;
 		InputManager* m_input;
-		Render* m_render;
-		Log m_log;
+		Log log;
+
 		bool m_init;
 	};
 
-// ------------------------------------------------------------------
+
+	//-------------------------------------------------------------------
 }

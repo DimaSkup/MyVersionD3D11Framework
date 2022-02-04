@@ -44,10 +44,10 @@ namespace D3D11Framework
 	{
 	public:
 		virtual bool MousePressed(const MouseClickEvent& arg) { return false; }
-		virtual bool MouseRelease(const MouseClickEvent& arg) { return false; }
+		virtual bool MouseReleased(const MouseClickEvent& arg) { return false; }
 
 		virtual bool KeyPressed(const KeyEvent& arg) { return false; }
-		virtual bool KeyRelease(const KeyEvent& arg) { return false; }
+		virtual bool KeyReleased(const KeyEvent& arg) { return false; }
 
 		virtual bool MouseMove(const MouseEvent& arg) { return false; }
 		virtual bool MouseWheel(const MouseWheelEvent& arg) { return false; }

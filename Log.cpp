@@ -144,7 +144,7 @@ namespace D3D11Framework
 		char time[9];
 
 		_strtime_s(time, 9);
-		printf("[%s :: %ld]: %s: %s\n", time, tickCount, levtext, text);
+		printf("[%s :: %Id]: %s: %s\n", time, tickCount, levtext, text);
 		
 		if (m_file)
 		{
