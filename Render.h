@@ -1,5 +1,3 @@
-// last revising at 28.01.22
-
 #pragma once
 
 namespace D3D11Framework
@@ -11,17 +9,17 @@ namespace D3D11Framework
 	public:
 		Render(void);
 
-		bool CreateDevice(HWND hWnd);
-		void BeginFrame(void);
-		void EndFrame(void);
-		void Shutdown(void);
-
 		virtual bool Init(HWND hWnd) = 0;
 		virtual bool Draw(void) = 0;
 		virtual void Close(void) = 0;
 
+		void BeginFrame(void);
+		bool CreateDevice(HWND hWnd);
+		void EndFrame(void);
+		void Shutdown(void);
+
 	protected:
-		HRESULT m_compileShaderFromFile(WCHAR* filename, LPCSTR functionName, 
+		HRESULT m_compileShaderFromFile(WCHAR* filename, LPCSTR functionName,
 										LPCSTR shaderModel, ID3DBlob** ppShaderBlob);
 
 		D3D_DRIVER_TYPE m_driverType;

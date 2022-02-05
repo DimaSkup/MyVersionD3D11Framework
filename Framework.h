@@ -3,6 +3,7 @@
 #include "InputListener.h"
 #include "InputManager.h"
 #include "Window.h"
+#include "Render.h"
 
 namespace D3D11Framework
 {
@@ -17,13 +18,14 @@ namespace D3D11Framework
 		void Run(void);
 		void Close();
 
-		//void SetRender(Render* render);
-		void AddListener(InputListener* listener);
+		void SetRender(Render* render) { m_render = render; };
+		void AddInputListener(InputListener* listener);
 		
-	private:
-		bool m_draw(void);
+	protected:
+		bool m_frame(void);
 		Window* m_wnd;
 		InputManager* m_input;
+		Render* m_render;
 		Log log;
 
 		bool m_init;

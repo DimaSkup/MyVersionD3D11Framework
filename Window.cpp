@@ -117,35 +117,41 @@ namespace D3D11Framework
 		if (inputManager)
 			m_inputManager = inputManager;
 		Log::Get()->Debug("Window::SetInputManager(): the input manager is set");
+		m_UpdateWindowState();
 	}
 
 	
 
-	LRESULT CALLBACK Window::WinProc(HWND hWnd, const UINT &message, WPARAM wParam, LPARAM lParam)
+	LRESULT Window::WinProc(HWND hWnd, const UINT &message, WPARAM wParam, LPARAM lParam)
 	{
 		switch (message)
 		{
 		case WM_CREATE:
+			Log::Get()->Debug("WinProc::WM_CREATE");
 			return 0;
 
 		case WM_CLOSE:
+			Log::Get()->Debug("WinProc::WM_CLOSE");
 			m_isExit = true;
 			return 0;
 
 		case WM_ACTIVATE:
-			if (LOWORD(wParam) == WA_INACTIVE)
-				return 0;
+			if (LOWORD(wParam) != WA_INACTIVE)
+				m_isActive = true;
+			else
+				m_isActive = false;
+			return 0;
 
+		case WM_MOVE:
 			m_desc.posx = LOWORD(lParam);
 			m_desc.posy = HIWORD(lParam);
 			Log::Get()->Debug("WINDOW POS: %d : %d", m_desc.posx, m_desc.posy);
-			m_isActive = true;
-
-			UpdateWindowState();
+			m_UpdateWindowState();
 			return 0;
 
+
 		case WM_SIZE:
-			if (!m_isResizing)
+			if (!m_desc.resize)
 				return 0;
 
 			m_desc.width = LOWORD(lParam);
@@ -179,7 +185,7 @@ namespace D3D11Framework
 				}
 			}
 
-			UpdateWindowState();
+			m_UpdateWindowState();
 			return 0;
 
 		case WM_KEYDOWN: case WM_KEYUP:
@@ -195,13 +201,21 @@ namespace D3D11Framework
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
-	void Window::UpdateWindowState(void)
+	void Window::m_UpdateWindowState(void)
 	{
-		RECT clientRect = { m_desc.posx, m_desc.posy, m_desc.width, m_desc.height };
+		RECT clientRect;// = { m_desc.posx, m_desc.posy, m_desc.width, m_desc.height };
+		clientRect.left = m_desc.posx;
+		clientRect.top = m_desc.posy;
+		clientRect.right = m_desc.width;
+		clientRect.bottom = m_desc.height;
 		if (m_inputManager)
 			m_inputManager->SetWindowZone(clientRect);
 	}
 	
+	LRESULT CALLBACK D3D11Framework::StaticWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		return Window::Get()->WinProc(hWnd, message, wParam, lParam);
+	}
 
 
 //-------------------------------------------------------------------

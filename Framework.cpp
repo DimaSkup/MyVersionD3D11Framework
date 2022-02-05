@@ -15,6 +15,7 @@ namespace D3D11Framework
 	{
 		m_wnd = nullptr;
 		m_input = nullptr;
+		m_render = nullptr;
 
 		m_init = false;
 
@@ -46,15 +47,18 @@ namespace D3D11Framework
 		m_wnd->SetInputManager(m_input);
 
 
-
-		/*
+		if (!m_render)
+		{
+			Log::Get()->Error("Framework::Init(): there is no render yet");
+			return false;
+		}
 		
 		if (!m_render->CreateDevice(m_wnd->GetHWND()))
 		{
 			Log::Get()->Error("Framework::Init(): can't create the render system");
 			return false;
 		}
-		*/
+		
 		
 		m_init = true;
 		return true;
@@ -63,45 +67,48 @@ namespace D3D11Framework
 	void Framework::Run(void)
 	{
 		if (m_init)
-			while(true) m_draw();
+			while (m_frame());
 	}
 
 	void Framework::Close(void)
 	{
+		m_render->Shutdown();
+		_DELETE(m_render);
+
 		_CLOSE(m_wnd);
 		_CLOSE(m_input);
 
 		m_init = false;
 	}
 
-	void Framework::AddListener(InputListener* listener)
+	void Framework::AddInputListener(InputListener* listener)
 	{
 		if (m_input)
 			m_input->AddInputListener(listener);
 	}
 
-	bool Framework::m_draw(void)
+	bool Framework::m_frame(void)
 	{
 		m_wnd->RunEvent();
 
 		// if the window is inactive we stop the frame rendering
-		if (!m_wnd->isActive())
-			return false;
+		if (!m_wnd->IsActive())
+			return true;
 
 		// if there is an exit we stop the engine process
-		if (m_wnd->isExit())
+		if (m_wnd->IsExit())
 			return false;
 
-		/*
+		
 		m_render->BeginFrame();
-		if (m_render->Draw())
+		if (!m_render->Draw())
 		{
-			return true;
+			return false;
 		}
 		m_render->EndFrame();
-		*/
+		
 
-		return false;
+		return true;
 	}
 
 	//-------------------------------------------------------------------

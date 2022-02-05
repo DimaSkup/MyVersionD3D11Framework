@@ -37,7 +37,7 @@ namespace D3D11Framework
 		void SetInputManager(InputManager* inputManager);
 		void Close(void);
 
-		static Window* GetWindow(void) { return m_instance; }
+		static Window* Get(void) { return m_instance; }
 		const HWND& GetHWND(void) { return m_hwnd; }
 
 		int GetWidth(void) { return m_desc.width; }
@@ -47,9 +47,9 @@ namespace D3D11Framework
 
 		const std::wstring& GetCaption(void) const { return m_desc.caption; }
 
-		bool isExit(void) const { return m_isExit; }
-		bool isActive(void) const { return m_isActive; }
-		bool isResizing(void) 
+		bool IsExit(void) const { return m_isExit; }
+		bool IsActive(void) const { return m_isActive; }
+		bool IsResizing(void) 
 		{
 			bool ret = m_isResizing;
 			m_isResizing = false;
@@ -59,7 +59,7 @@ namespace D3D11Framework
 		LRESULT CALLBACK WinProc(HWND hWnd, const UINT &message, WPARAM wParam, LPARAM lParam);
 
 	private:
-		void UpdateWindowState(void);
+		void m_UpdateWindowState(void);
 
 		static Window* m_instance;
 		HWND m_hwnd;
@@ -73,10 +73,7 @@ namespace D3D11Framework
 		bool m_isResizing;
 	};
 
-	static LRESULT CALLBACK StaticWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-	{
-		return Window::GetWindow()->WinProc(hWnd, message, wParam, lParam);
-	}
+	static LRESULT CALLBACK StaticWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 //-------------------------------------------------------------------
 };

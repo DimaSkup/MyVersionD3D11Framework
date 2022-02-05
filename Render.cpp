@@ -1,11 +1,8 @@
-// last revising at 28.01.22
-
 #include "stdafx.h"
+
 #include "macros.h"
 #include "Render.h"
 #include "Log.h"
-
-#include <d3dcompiler.h>
 
 namespace D3D11Framework
 {
@@ -13,45 +10,45 @@ namespace D3D11Framework
 
 	Render::Render(void)
 	{
-		Log::Get()->Debug("Render::Render()");
-
 		m_driverType = D3D_DRIVER_TYPE_NULL;
 		m_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
 		m_pd3dDevice = nullptr;
 		m_pImmediateContext = nullptr;
 		m_pSwapChain = nullptr;
+		m_pRenderTargetView = nullptr;
 
 		m_pDepthStencil = nullptr;
 		m_pDepthStencilView = nullptr;
-	}
 
+		Log::Get()->Debug("Render::Render");
+	}
 
 	bool Render::CreateDevice(HWND hWnd)
 	{
 		HRESULT hr = S_OK;
-		RECT windowRect;
 
-		// definition of the window size
-		BOOL isWindowRect = GetClientRect(hWnd, &windowRect);
-		if (!isWindowRect)
+		// get size of the window
+		RECT clientRect;
+		BOOL isClientRect = GetClientRect(hWnd, &clientRect);
+		if (!isClientRect)
 		{
-			Log::Get()->Error("Render::CreateDevice(): can't get the client's rectangle");
+			Log::Get()->Error("Render::CreateDevice(): can't get the client rect");
 			return false;
 		}
 
-		UINT width = windowRect.right - windowRect.left;
-		UINT height = windowRect.bottom - windowRect.top;
+		UINT width = clientRect.right - clientRect.left;
+		UINT height = clientRect.bottom - clientRect.top;
 
-		// definition of the flag which we will use during creation of the swap chain
-		UINT createDeviceFlags = 0;
-#if defined(_DEBUG) || defined(DEBUG)
-		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+
+		// definition of the create device flag
+		UINT createDeviceFlag = 0;
+#ifdef _DEBUG
+		createDeviceFlag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		// definition of the driver types list and feature levels list
-		D3D_DRIVER_TYPE driverTypes[] =
-		{
+		// definition of driver types and feature levels
+		D3D_DRIVER_TYPE driverTypes[] = {
 			D3D_DRIVER_TYPE_HARDWARE,
 			D3D_DRIVER_TYPE_WARP,
 			D3D_DRIVER_TYPE_SOFTWARE,
@@ -59,15 +56,14 @@ namespace D3D11Framework
 
 		UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
-		D3D_FEATURE_LEVEL featureLevels[] =
-		{
+		D3D_FEATURE_LEVEL featureLevels[] = {
 			D3D_FEATURE_LEVEL_11_0,
 			D3D_FEATURE_LEVEL_10_1,
 			D3D_FEATURE_LEVEL_10_0,
 		};
 
 		UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-		
+
 
 		// definition of the swap chain description
 		DXGI_SWAP_CHAIN_DESC scd;
@@ -76,30 +72,30 @@ namespace D3D11Framework
 		scd.BufferCount = 1;
 		scd.BufferDesc.Width = width;
 		scd.BufferDesc.Height = height;
-		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scd.BufferDesc.RefreshRate.Numerator = 60;
 		scd.BufferDesc.RefreshRate.Denominator = 1;
+		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scd.OutputWindow = hWnd;
 		scd.SampleDesc.Count = 1;
 		scd.SampleDesc.Quality = 0;
+		scd.OutputWindow = hWnd;
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 		scd.Windowed = TRUE;
 
-
-		// creation of the device, device context and swap chain using
-		// the swap chain description
+		
+		// creation of the device, device context and swap chain
+		// using the swap chain description
 		for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
 		{
 			m_driverType = driverTypes[driverTypeIndex];
 
-			hr = D3D11CreateDeviceAndSwapChain(nullptr, 
-												m_driverType, 
-												NULL, 
-												createDeviceFlags, 
-												featureLevels, 
+			hr = D3D11CreateDeviceAndSwapChain(nullptr,
+												m_driverType,
+												NULL,
+												createDeviceFlag,
+												featureLevels,
 												numFeatureLevels,
-												D3D11_SDK_VERSION, 
+												D3D11_SDK_VERSION,
 												&scd,
 												&m_pSwapChain,
 												&m_pd3dDevice,
@@ -117,14 +113,13 @@ namespace D3D11Framework
 		}
 
 
-
-		// definition of the render target view
+		// creation of the render target view
 		ID3D11Texture2D* pBackBuffer = nullptr;
 		hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		if (FAILED(hr))
 		{
-			Log::Get()->Error("Render::CreateDevice(): can't get buffer from the swap chain");
 			_RELEASE(pBackBuffer);
+			Log::Get()->Error("Render::CreateDevice(): can't get the swap chain buffer");
 			return false;
 		}
 
@@ -135,47 +130,47 @@ namespace D3D11Framework
 			Log::Get()->Error("Render::CreateDevice(): can't create the render target view");
 			return false;
 		}
-		
+
 
 		// definition of the depth stencil and depth stencil view
-		D3D11_TEXTURE2D_DESC descDepth;
-		ZeroMemory(&descDepth, sizeof(D3D11_TEXTURE2D_DESC));
+		D3D11_TEXTURE2D_DESC depthDesc;
+		ZeroMemory(&depthDesc, sizeof(D3D11_TEXTURE2D_DESC));
 
-		descDepth.Width = width;
-		descDepth.Height = height;
-		descDepth.MipLevels = 1;
-		descDepth.ArraySize = 1;
-		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		descDepth.Usage = D3D11_USAGE_DEFAULT;
-		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		descDepth.SampleDesc.Count = 1;
-		descDepth.SampleDesc.Quality = 0;
-		descDepth.MiscFlags = 0;
-		descDepth.CPUAccessFlags = 0;
+		depthDesc.Width = width;
+		depthDesc.Height = height;
+		depthDesc.MipLevels = 1;
+		depthDesc.ArraySize = 1;
+		depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthDesc.SampleDesc.Count = 1;
+		depthDesc.SampleDesc.Quality = 0;
+		depthDesc.MiscFlags = 0;
+		depthDesc.CPUAccessFlags = 0;
 
-		hr = m_pd3dDevice->CreateTexture2D(&descDepth, nullptr, &m_pDepthStencil);
+		hr = m_pd3dDevice->CreateTexture2D(&depthDesc, nullptr, &m_pDepthStencil);
 		if (FAILED(hr))
 		{
-			Log::Get()->Error("Render::CreateDevice(): can't create the depth stencil");
+			Log::Get()->Error("Render::CreateDevice(): can't create the depth stencil 2D texture");
 			return false;
 		}
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 		ZeroMemory(&descDSV, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 
-		descDSV.Format = descDepth.Format;
+		descDSV.Format = depthDesc.Format;
 		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		descDSV.Texture2D.MipSlice = 0;
 
-		hr = m_pd3dDevice->CreateDepthStencilView(m_pDepthStencil, &descDSV, &m_pDepthStencilView);
+		hr = m_pd3dDevice->CreateDepthStencilView(m_pDepthStencil, nullptr, &m_pDepthStencilView);
 		if (FAILED(hr))
 		{
 			Log::Get()->Error("Render::CreateDevice(): can't create the depth stencil view");
 			return false;
 		}
 
-		// set the render target view
-		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+
+		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
 
 
 		// definition of the viewport
@@ -188,20 +183,17 @@ namespace D3D11Framework
 		viewport.MaxDepth = 1.0f;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
-		
+
 		m_pImmediateContext->RSSetViewports(1, &viewport);
 
 
-		Log::Get()->Debug("Render::CreateDevice(): the device is create successfully");
-
+		Log::Get()->Debug("Render::CreateDevice(): the device is created successfully");
 		return Init(hWnd);
 	}
-
 
 	void Render::BeginFrame(void)
 	{
 		float clearColor[] = { 0.2f, 0.4f, 0.6f, 1.0f };
-
 		m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
 		m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
@@ -225,9 +217,14 @@ namespace D3D11Framework
 		_RELEASE(m_pSwapChain);
 		_RELEASE(m_pImmediateContext);
 		_RELEASE(m_pd3dDevice);
+
+		Log::Get()->Debug("Render::Shutdown()");
 	}
 
 
+	// *************************************
+	//    PROTECTED METHODS DEFINITION
+	// *************************************
 	HRESULT Render::m_compileShaderFromFile(WCHAR* filename, LPCSTR functionName,
 											LPCSTR shaderModel, ID3DBlob** ppShaderBlob)
 	{
@@ -235,22 +232,24 @@ namespace D3D11Framework
 		ID3DBlob* pErrorMsgs = nullptr;
 
 		UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined(_DEBUG) || defined(DEBUG)
+#ifdef _DEBUG
 		compileFlags |= D3DCOMPILE_DEBUG;
 #endif
 
 		hr = D3DX11CompileFromFile(filename, nullptr, NULL,
-									functionName, shaderModel, 
-									compileFlags, NULL, nullptr,
-									ppShaderBlob, &pErrorMsgs, nullptr);
+									functionName, shaderModel,
+									compileFlags, NULL, 
+									nullptr, ppShaderBlob,
+									&pErrorMsgs, nullptr);
 		if (FAILED(hr) && (pErrorMsgs != nullptr))
 		{
-			printf("THERE ARE SOME INTERNAL SHADER ERRORS: in file \"%S\", function \"%s\"\n", filename, functionName);
-			printf("%s\n", (char*)pErrorMsgs->GetBufferPointer());
+			Log::Get()->Error("Render::m_compileShaderFromFile(): shader \"%S\"; function \"%s\"", filename, functionName);
+			Log::Get()->Error("%s", (char*)pErrorMsgs->GetBufferPointer());
 		}
 
 		_RELEASE(pErrorMsgs);
 		return hr;
 	}
+
 //-------------------------------------------------------------------
 }

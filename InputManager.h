@@ -7,7 +7,7 @@ namespace D3D11Framework
 {
 //-------------------------------------------------------------------
 
-	class InputListener; // ????
+	//class InputListener; // ????
 
 	class InputManager
 	{
