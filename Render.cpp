@@ -170,7 +170,7 @@ namespace D3D11Framework
 		}
 
 
-		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
+		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
 
 		// definition of the viewport

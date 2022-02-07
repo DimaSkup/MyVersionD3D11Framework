@@ -73,7 +73,8 @@ namespace D3D11Framework
 	void Framework::Close(void)
 	{
 		m_render->Shutdown();
-		_DELETE(m_render);
+		//_DELETE(m_render);
+		m_render = nullptr;
 
 		_CLOSE(m_wnd);
 		_CLOSE(m_input);
